@@ -13,6 +13,20 @@ tomcat_install 'jenkins' do
   tomcat_group 'tomcat'
 end
 
+template '/opt/tomcat_jenkins/conf/server.xml' do
+  source 'server.xml.erb'
+  owner 'tomcat'
+  group 'tomcat'
+  mode '0644'
+  notifies :restart, 'tomcat_service[jenkins]'
+end
+
+remote_file '/opt/tomcat_jenkins/webapps/jenkins.war' do
+  owner 'tomcat'
+  mode '0644'
+  source "#{node['mm-jenkins']['warurl']}"
+end
+
 tomcat_service 'jenkins' do
   action [:start, :enable]
   tomcat_user 'tomcat'
